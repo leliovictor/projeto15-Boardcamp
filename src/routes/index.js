@@ -1,9 +1,11 @@
 import { Router } from "express";
 
-//import registerRouter from "./registerRouter.js"
+import categoriesRouter from "./categoriesRouter.js";
+import rentalsRouter from "./rentalsRouter.js";
 
 const router = Router();
 
-//router.use(registerRouter);
+router.use(categoriesRouter);
+router.use(rentalsRouter);
 
 export default router;

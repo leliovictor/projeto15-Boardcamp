@@ -1,7 +1,30 @@
 {
+  "name": "projeto15-boardcamp",
+  "version": "1.0.0",
+  "type":"module",
+  "main": "index.js",
+  "devDependencies": {},
+  "scripts": {
+    "start":"node index.js",
+    "dev":"nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/leliovictor/projeto15-Boardcamp.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
   "dependencies": {
     "cors": "^2.8.5",
+    "dotenv": "^16.0.1",
     "express": "^4.18.1",
+    "nodemon": "^2.0.19",
     "pg": "^8.7.3"
-  }
+  },
+  "bugs": {
+    "url": "https://github.com/leliovictor/projeto15-Boardcamp/issues"
+  },
+  "homepage": "https://github.com/leliovictor/projeto15-Boardcamp#readme",
+  "description": ""
 }

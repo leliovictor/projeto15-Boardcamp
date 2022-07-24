@@ -29,3 +29,19 @@ export async function getCustomersById(_req, res) {
 
   return res.status(200).send(customer);
 }
+
+export async function postCustomer(req, res) {
+  const { name, phone, cpf, birthday } = req.body;
+
+  try {
+    const query = `
+    INSERT INTO customers ("name","phone","cpf", "birthday") VALUES ($1,$2,$3,$4)
+    `;
+
+    await connection.query(query, [name, phone, cpf, birthday]);
+
+    return res.sendStatus(201);
+  } catch (err) {
+    return res.sendStatus(500);
+  }
+}

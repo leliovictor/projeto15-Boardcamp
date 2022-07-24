@@ -23,3 +23,9 @@ export async function getCustomers(req, res) {
     return res.sendStatus(500);
   }
 }
+
+export async function getCustomersById(_req, res) {
+  const { customer } = res.locals;
+
+  return res.status(200).send(customer);
+}

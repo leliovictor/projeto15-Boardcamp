@@ -1,9 +1,13 @@
 import { Router } from "express";
 
-import { getRentals } from "../controllers/rentalsController.js";
+import { getRentals, postRentals, returnRental, deleteRental} from "../controllers/rentalsController.js";
+import { checkBodyRentals, checkCustomerId, checkGameId, checkRentalExists } from "../middlewares/rentalsMiddlewares.js";
 
-const rentalsController = Router();
+const rentalsRouter = Router();
 
-rentalsController.get("/rentals", getRentals);
+rentalsRouter.get("/rentals", getRentals);
+rentalsRouter.post("/rentals", checkBodyRentals, checkCustomerId, checkGameId, postRentals);
+rentalsRouter.post("/rentals/:id/return", checkRentalExists, returnRental);
+rentalsRouter.delete("/rentals/:id", checkRentalExists, deleteRental);
 
-export default rentalsController;
+export default rentalsRouter;

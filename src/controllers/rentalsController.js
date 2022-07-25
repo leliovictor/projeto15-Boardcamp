@@ -1,4 +1,5 @@
 import connection from "../config/db.js";
+import dayjs from "dayjs";
 
 export async function getRentals(req, res) {
   const { customerId } = req.query;
@@ -86,5 +87,114 @@ export async function getRentals(req, res) {
     return res.status(200).send(ajustRentalsObject);
   } catch (err) {
     return res.sendStatus(500);
+  }
+}
+
+export async function postRentals(req, res) {
+  const { customerId, gameId, daysRented } = req.body;
+  const { game } = res.locals;
+
+  const rentDate = dayjs().format("YYYY-MM-DD");
+  const [returnDate, delayFee] = [null, null];
+  const originalPrice = parseInt(req.body.daysRented) * game.pricePerDay;
+
+  try {
+    const query = `
+    INSERT INTO rentals ("customerId", "gameId", "rentDate", "daysRented", "returnDate", "originalPrice", "delayFee")
+    VALUES ($1,$2,$3,$4,$5,$6,$7)
+    `;
+
+    const queryParams = [
+      customerId,
+      gameId,
+      rentDate,
+      daysRented,
+      returnDate,
+      originalPrice,
+      delayFee,
+    ];
+
+    console.log(queryParams);
+
+    await connection.query(query, queryParams);
+    return res.sendStatus(201);
+  } catch (err) {
+    return res.sendStatus(500);
+  }
+}
+
+export async function deleteRental(req, res) {
+  const id = req.params.id;
+  const rental = res.locals.rental;
+
+  if (rental.returnDate !== null) {
+    return res.sendStatus(400);
+  } 
+
+  try {
+    await connection.query(
+      `DELETE FROM rentals
+      WHERE id = $1
+      `,
+      [id]
+    );
+
+    res.sendStatus(200);
+  } catch (err) {
+    res.sendStatus(500);
+  }
+}
+
+export async function returnRental(_req, res) {
+  const rental = res.locals.rental;
+
+  if (rental.returnDate !== null) {
+    res.sendStatus(400);
+    return;
+  }
+  const returnDate = new Date().toISOString();
+  try {
+    const gameResult = await connection.query(
+      `
+        SELECT * FROM games
+        WHERE id = $1
+      `,
+      [rental.gameId]
+    );
+
+    const game = gameResult.rows[0];
+
+    const daysToMilliseconds = 86400000;
+    const idealReturnDate = new Date(
+      new Date(rental.rentDate).getTime() +
+        rental.daysRented * daysToMilliseconds
+    );
+
+    let delayFee;
+
+    if (new Date(returnDate) > new Date(idealReturnDate)) {
+      const delay =
+        new Date(
+          new Date(returnDate).getTime() - new Date(rental.rentDate).getTime()
+        ) / daysToMilliseconds;
+
+      delayFee = Math.floor(delay) * game.pricePerDay;
+    } else {
+      delayFee = 0;
+    }
+
+    await connection.query(
+      `
+        UPDATE rentals
+        SET "returnDate" = $1,
+        "delayFee" = $2
+        WHERE id = $3
+      `,
+      [returnDate, delayFee, rental.id]
+    );
+
+    res.sendStatus(200);
+  } catch (err) {
+    res.sendStatus(500);
   }
 }

@@ -25,7 +25,6 @@ export async function checkCustomerId(req, res, next) {
 
 export async function checkBodyPostCustomer(req, res, next) {
   const bodyValidation = customerBodySchema.validate(req.body);
-
   if (bodyValidation.error) {
     return res.status(400).send({
       message: "Body with invalid format",
@@ -45,7 +44,8 @@ export async function checkDuplicateCpf(req, res, next) {
         `;
     const { rows: customer } = await connection.query(query, [cpf]);
 
-    if (customer.length !== 0) return res.status(409).send("CPF already in use");
+    if (customer.length !== 0)
+      return res.status(409).send("CPF already in use");
   } catch (err) {
     return res.sendStatus(500);
   }
